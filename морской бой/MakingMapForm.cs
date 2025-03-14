@@ -190,7 +190,6 @@ namespace морской_бой
                 client = server.AcceptTcpClient();
                 if (client != null)
                     break;
-
             }
             while (true)
             {
