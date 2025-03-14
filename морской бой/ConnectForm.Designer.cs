@@ -29,17 +29,11 @@ namespace морской_бой
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.btn_Enter = new System.Windows.Forms.Button();
             this.IP = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.rb_Client = new System.Windows.Forms.RadioButton();
             this.rb_Server = new System.Windows.Forms.RadioButton();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // btn_Enter
@@ -58,6 +52,7 @@ namespace морской_бой
             this.IP.Name = "IP";
             this.IP.Size = new System.Drawing.Size(228, 20);
             this.IP.TabIndex = 1;
+            this.IP.Text = "192.168.31.86";
             // 
             // label1
             // 
@@ -92,57 +87,14 @@ namespace морской_бой
             this.rb_Server.UseVisualStyleBackColor = true;
             this.rb_Server.CheckedChanged += new System.EventHandler(this.rb_Server_CheckedChanged);
             // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(318, 9);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(117, 20);
-            this.textBox1.TabIndex = 1;
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(318, 54);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(117, 20);
-            this.textBox2.TabIndex = 1;
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(318, 98);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(80, 17);
-            this.checkBox1.TabIndex = 6;
-            this.checkBox1.Text = "checkBox1";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(318, 121);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(80, 17);
-            this.checkBox2.TabIndex = 6;
-            this.checkBox2.Text = "checkBox1";
-            this.checkBox2.UseVisualStyleBackColor = true;
-            // 
-            // timer1
-            // 
-            this.timer1.Interval = 1000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
             // ConnectForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(463, 247);
-            this.Controls.Add(this.checkBox2);
-            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.rb_Server);
             this.Controls.Add(this.rb_Client);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.IP);
             this.Controls.Add(this.btn_Enter);
             this.Name = "ConnectForm";
@@ -156,11 +108,6 @@ namespace морской_бой
 
         private System.Windows.Forms.Button btn_Enter;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.Timer timer1;
         public System.Windows.Forms.RadioButton rb_Client;
         public System.Windows.Forms.RadioButton rb_Server;
         public System.Windows.Forms.TextBox IP;
