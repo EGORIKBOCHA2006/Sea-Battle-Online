@@ -25,7 +25,7 @@ namespace морской_бой
         int solo = 4;
         Thread thread;
         TcpListener server;
-        bool statbro = false;
+        bool serverReady;
         ConnectForm parentF;
         List<string> coords = new List<string>();
         GameForm gameF;
@@ -48,8 +48,11 @@ namespace морской_бой
             }
             if (parentF.rb_Server.Checked)
             {
-                server = new TcpListener(IPAddress.Parse("192.168.0.134"), 8080);
+                this.Text = "Хост";
+                server = new TcpListener(IPAddress.Parse("192.168.31.86"), 8080);
                 server.Start();
+               serverReady = false;
+                ThreadStart threadstart = new ThreadStart(Listener);
                 thread = new Thread(new ThreadStart(Listener));
                 thread.IsBackground = true;
                 thread.Start();
@@ -139,12 +142,12 @@ namespace морской_бой
 
 
                 }
-
+            
 
  
         }
 
-        private void btnAccept_Click(object sender, EventArgs e)
+        private async void btnAccept_Click(object sender, EventArgs e)
         {
             if (lblCount1.Text == "0" && lblCount2.Text == "0" && lblCount3.Text == "0" && lblCount4.Text == "0")
             {
@@ -153,86 +156,54 @@ namespace морской_бой
                 {
 
                     coords.Add(dataGridView1.Rows[cell.RowIndex].HeaderCell.Value.ToString()+(cell.ColumnIndex+1).ToString());
-                    
-
-
                 }
-                
+
 
                 if (parentF.rb_Client.Checked)
                 {
                     TcpClient client = new TcpClient();
-                    client.Connect(new IPEndPoint(IPAddress.Parse(parentF.IP.Text), 8080));
+
+                    await client.ConnectAsync(IPAddress.Parse(parentF.IP.Text), 8080);
                     NetworkStream stream = client.GetStream();
-                    byte[] message = Encoding.Unicode.GetBytes("1");
-                    stream.Write(message, 0, message.Length);
+                    byte[] data = new byte[1024];
+                    stream.Read(data, 0, data.Length);
+                    MessageBox.Show(Encoding.UTF8.GetString(data));
                     client.Close();
 
-                    
-                    server = new TcpListener(IPAddress.Parse("192.168.0.134"), 8080);
-                    server.Start();
-                    MessageBox.Show("Старт получений клиента");
-                    Thread thread = new Thread(new ThreadStart(Listener));
-                    thread.IsBackground = true;
-                    thread.Start();
-                    thread.Join();
 
 
                     this.Close();
-                   
 
-                }
-                else
+
+
+                } else
                 {
-                   while(!statbro)
-                    {
-
-                    }
-
-
-                    MessageBox.Show("Отправка клиенту");
-                    TcpClient client = new TcpClient();
-                    client.Connect(new IPEndPoint(IPAddress.Parse(parentF.IP.Text), 8080));
-                    MessageBox.Show("Сопряжение с клиентом");
-                    NetworkStream stream = client.GetStream();
-                    byte[] message = Encoding.Unicode.GetBytes("1");
-                    stream.Write(message, 0, message.Length);
-                    client.Close();
-
-                    this.Close();
-                    
-                   
+                    serverReady = (quadro == 0 && trio == 0 && duo == 0 && solo == 0) ? true : false;
                 }
-                server.Stop();
-                gameF = new GameForm(dataGridView1, (parentF.rb_Server.Checked) ? true : false, enemyString);
-                gameF.MainGame();
-                
-                
-
-
-
-             
-
-
             }
         }
         public void Listener()
         {
+            TcpClient client;
             while (true)
             {
-
-                TcpClient cl = server.AcceptTcpClient();    //192.168.88.181
-
-                StreamReader sr = new StreamReader(cl.GetStream(), Encoding.Unicode);
-                string message = sr.ReadLine();
-                //MSG.Text += "\n" + message;
-
-                statbro = true;
-                cl.Close();
-                return;
-
+                client = server.AcceptTcpClient();
+                if (client != null)
+                    break;
 
             }
+            while (true)
+            {
+                if (serverReady)
+                {
+                    NetworkStream stream = client.GetStream();
+                    byte[] bytes = Encoding.UTF8.GetBytes("serverisready");
+                    stream.Write(bytes, 0, bytes.Length);
+                    break;
+                }
+            }
+            this.Close();
+
         }
     }
 }
