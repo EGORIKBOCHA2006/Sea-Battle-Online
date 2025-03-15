@@ -166,7 +166,7 @@ namespace морской_бой
                     await client.ConnectAsync(IPAddress.Parse(parentF.IP.Text), 8080);
                     NetworkStream stream = client.GetStream();
                     byte[] data = new byte[1024];
-                    stream.Read(data, 0, data.Length);
+                    await stream.ReadAsync(data, 0, data.Length);
                     MessageBox.Show(Encoding.UTF8.GetString(data));
                     client.Close();
 
