@@ -105,14 +105,11 @@ namespace морской_бой
                 MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             try
-            {
-                
-
-                
+            {             
                 makingMapF = new MakingMapForm(this);
+                this.Hide();
                 makingMapF.ShowDialog();
                 this.Close();
-                
             }
             catch(Exception ex)
             {

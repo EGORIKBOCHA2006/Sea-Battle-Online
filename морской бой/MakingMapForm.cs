@@ -30,6 +30,7 @@ namespace морской_бой
         List<string> coords = new List<string>();
         GameForm gameF;
         string enemyString;
+        string abc = "ABCDEFGHIJ";
         public MakingMapForm(ConnectForm pF)
         {
             
@@ -40,7 +41,6 @@ namespace морской_бой
             parentF = pF;
             dataGridView1.AllowUserToResizeRows = false;
             dataGridView1.RowCount = 10;
-            string abc = "ABCDEFGHIJ";
             for (int i = 0; i < 10; i++)
             {
                 //MessageBox.Show(abc[i].ToString());
@@ -69,34 +69,24 @@ namespace морской_бой
                 switch(dataGridView1.SelectedCells.Count)
                 {
                     case 4:
-
-                    if (quadro > 0)
-                     
-                    {
-      
-                      
-                        
+                    if (quadro > 0)               
+                    {  
                         foreach (DataGridViewCell item in dataGridView1.SelectedCells)
                         {
-
-
                             item.Style.BackColor = Color.BlueViolet;
-
-
+                            item.Tag = "ship";
                         }
                         quadro--;
                         lblCount4.Text = quadro.ToString();
                     }
                         break;
                 case 3:
-
                     if (trio > 0)
                     {
                         foreach (DataGridViewCell item in dataGridView1.SelectedCells)
                         {
                             item.Style.BackColor = Color.BlueViolet;
-
-
+                            item.Tag = "ship";
                         }
                         trio--;
                         lblCount3.Text = trio.ToString();
@@ -104,14 +94,12 @@ namespace морской_бой
                     break;
 
                 case 2:
-
                     if (duo > 0)
                     {
                         foreach (DataGridViewCell item in dataGridView1.SelectedCells)
                         {
                             item.Style.BackColor = Color.BlueViolet;
-
-
+                            item.Tag = "ship";
                         }
                         duo--;
                         lblCount2.Text = duo.ToString();
@@ -119,14 +107,12 @@ namespace морской_бой
                     break;
 
                 case 1:
-
                     if (solo > 0)
                     {
                         foreach (DataGridViewCell item in dataGridView1.SelectedCells)
                         {
                             item.Style.BackColor = Color.BlueViolet;
-
-
+                            item.Tag = "ship";
                         }
                         solo--;
                         lblCount1.Text = solo.ToString();
@@ -135,12 +121,6 @@ namespace морской_бой
                 default:
                     MessageBox.Show("Неверное выстроен корабль");
                     break;
-                    
-
-
-
-
-
                 }
             
 
@@ -151,14 +131,16 @@ namespace морской_бой
         {
             if (lblCount1.Text == "0" && lblCount2.Text == "0" && lblCount3.Text == "0" && lblCount4.Text == "0")
             {
-
-                foreach(DataGridViewCell cell in dataGridView1.SelectedCells)
+                for (int i = 0; i < dataGridView1.Rows.Count; i++)
                 {
-
-                    coords.Add(dataGridView1.Rows[cell.RowIndex].HeaderCell.Value.ToString()+(cell.ColumnIndex+1).ToString());
+                    for (int j = 0; j < dataGridView1.Columns.Count; j++)
+                    {
+                        if (dataGridView1.Rows[i].Cells[j].Tag != null)
+                        {
+                            coords.Add(abc[i].ToString() + (j + 1).ToString());
+                        }
+                    }
                 }
-
-
                 if (parentF.rb_Client.Checked)
                 {
                     TcpClient client = new TcpClient();
@@ -167,11 +149,10 @@ namespace морской_бой
                     NetworkStream stream = client.GetStream();
                     byte[] data = new byte[1024];
                     await stream.ReadAsync(data, 0, data.Length);
-                    MessageBox.Show(Encoding.UTF8.GetString(data));
                     client.Close();
 
-
-
+                    this.Hide();
+                   
                     this.Close();
 
 

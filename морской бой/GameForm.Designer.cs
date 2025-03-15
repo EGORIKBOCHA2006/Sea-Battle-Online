@@ -186,9 +186,9 @@ namespace морской_бой
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label2.Location = new System.Drawing.Point(907, 37);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(205, 29);
+            this.label2.Size = new System.Drawing.Size(217, 29);
             this.label2.TabIndex = 3;
-            this.label2.Text = "Поле проивника";
+            this.label2.Text = "Поле противника";
             // 
             // GameForm
             // 
