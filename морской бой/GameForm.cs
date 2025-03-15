@@ -23,6 +23,7 @@ namespace морской_бой
         IPAddress iPAddressEnemy;
         List<string> coords_my;
         List<string> coords_enemy;
+        bool is_host=false;
         public GameForm(List<string> coords_my, List<string> coords_enemy, bool is_host, IPAddress ip_enemy = null)
         {
             InitializeComponent();
@@ -30,7 +31,7 @@ namespace морской_бой
             table_enemy.RowCount = 10;
             iPAddressEnemy = ip_enemy;
             this.coords_my = coords_my;
-            MessageBox.Show((is_host) ? "Хост" : "клиент");
+            this.is_host = is_host;
             this.coords_enemy = coords_enemy;
             for (int i = 0; i < 10; i++)
             {
@@ -50,8 +51,12 @@ namespace морской_бой
 
                 table_user[(int)char.GetNumericValue(str[1]), abc.IndexOf(str[0])].Style.BackColor = Color.BlueViolet;
             }
-            main_game(is_host);
+            start_main_game();
 
+        }
+        public async Task start_main_game()
+        {
+            await Task.Run(() => main_game(is_host));
         }
         public async Task main_game(bool isHost)
         {
@@ -60,7 +65,7 @@ namespace морской_бой
             TcpClient tcpClient;
             TcpClient client;
             NetworkStream stream;
-           MessageBox.Show((isHost) ? "Хост" : "клиент"); 
+        
 
             if (isHost)
             {
@@ -68,6 +73,7 @@ namespace морской_бой
                 server = new TcpListener(IPAddress.Parse("192.168.31.86"), 8080);
                 server.Start();
                 tcpClient = await server.AcceptTcpClientAsync();
+                MessageBox.Show("AcceptTcpClientAsync");
                 stream = tcpClient.GetStream();
             }
             else
@@ -75,23 +81,28 @@ namespace морской_бой
                 game_state = 3;
                 client = new TcpClient();
                 await client.ConnectAsync(iPAddressEnemy, 8080);
+                MessageBox.Show("ConnectAsync");
                 stream = client.GetStream();
             }
 
             try
             {
                 if (isHost)
-                    await stream.WriteAsync(Encoding.UTF8.GetBytes("sefsef"), 0, (Encoding.UTF8.GetBytes("sefsef").Length));
+                {
+                    await stream.WriteAsync(Encoding.UTF8.GetBytes("Выстрел"), 0, (Encoding.UTF8.GetBytes("Выстрел").Length));
+                    MessageBox.Show("WriteAsync");
+                }
                 else
                 {
                     byte[] data = new byte[1024];
                     await stream.ReadAsync(data, 0, data.Length);
+                    MessageBox.Show("ReadAsync");
                     string s = Encoding.UTF8.GetString(data);
                     MessageBox.Show(s);
                 }
 
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message, (isHost) ? "Хост" : "клиент"); }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
 

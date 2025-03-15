@@ -75,7 +75,7 @@ namespace морской_бой
         {
             await Task.Run(() => Listener());
             this.Hide();
-            gameF = new GameForm(coords, coords_enemy, false, IPAddress.Parse(parentF.IP.Text));
+            gameF = new GameForm(coords, coords_enemy, true, IPAddress.Parse(parentF.IP.Text));
             gameF.ShowDialog();
             this.Close();
         }
@@ -175,6 +175,7 @@ namespace морской_бой
                     }
                     byte[] bytes = Encoding.UTF8.GetBytes("client;"+clientCoords);
                     stream.Write(bytes, 0, bytes.Length);
+                    stream.Close();
                     client.Close();
 
                     this.Hide();
@@ -223,6 +224,9 @@ namespace морской_бой
                     }
                     for (int i = 1; i < client_coords.Split(';').Length; i++)
                         coords_enemy.Add(client_coords.Split(';')[i]);
+                    stream.Close();    
+                    client.Close();
+                    server.Stop();
                     break;
                 }
             }
