@@ -26,6 +26,7 @@ namespace морской_бой
         Thread thread;
         TcpListener server;
         bool server_ready;
+        bool listener_end = false;
         ConnectForm parentF;
         List<string> coords = new List<string>();
         List<string> coords_enemy = new List<string>();
@@ -54,10 +55,13 @@ namespace морской_бой
                 server = new TcpListener(IPAddress.Parse("192.168.31.86"), 8080);
                 server.Start();
                server_ready = false;
-                ThreadStart threadstart = new ThreadStart(Listener);
+                /*ThreadStart threadstart = new ThreadStart(Listener);
                 thread = new Thread(new ThreadStart(Listener));
                 thread.IsBackground = true;
-                thread.Start();
+                thread.Start();*/
+                startListener();
+                
+
             }
             else
             {
@@ -67,7 +71,14 @@ namespace морской_бой
 
         }
 
-   
+    public async void startListener()
+        {
+            await Task.Run(() => Listener());
+            this.Hide();
+            gameF = new GameForm(coords, coords_enemy, false, IPAddress.Parse(parentF.IP.Text));
+            gameF.ShowDialog();
+            this.Close();
+        }
 
         private void dataGridView1_MouseUp(object sender, MouseEventArgs e)
         {
@@ -167,7 +178,8 @@ namespace морской_бой
                     client.Close();
 
                     this.Hide();
-                   
+                    gameF = new GameForm(coords, coords_enemy, false, IPAddress.Parse(parentF.IP.Text));
+                    gameF.ShowDialog();
                     this.Close();
 
 
@@ -180,6 +192,7 @@ namespace морской_бой
         }
         public void Listener()
         {
+            
             TcpClient client;
             while (true)
             {
@@ -213,8 +226,7 @@ namespace морской_бой
                     break;
                 }
             }
-            this.Close();
-
+            listener_end = true;
         }
     }
 }
