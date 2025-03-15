@@ -18,13 +18,18 @@ namespace морской_бой
 {
     public partial class ConnectForm : Form
     {
+
         string IPEnemy;
         
         MakingMapForm makingMapF;
         public ConnectForm()
         {
-            
+
             InitializeComponent();
+            List<string> coords = new List<string>() {"a2","e3","f5","b6","h8","c1","j9","d3","a1","e7" };
+            
+            GameForm game=new GameForm(coords,coords);
+            game.Show();
         }
 
         /*private async void btn_Enter_Click(object sender, EventArgs e)

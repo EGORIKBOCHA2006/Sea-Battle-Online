@@ -143,7 +143,7 @@ namespace морской_бой
                     {
                         if (dataGridView1.Rows[i].Cells[j].Tag != null)
                         {
-                            coords.Add(abc[i].ToString() + (j + 1).ToString());
+                            coords.Add(abc[i].ToString().ToLower() + (j).ToString());
                         }
                     }
                 }
