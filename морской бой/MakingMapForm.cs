@@ -25,9 +25,11 @@ namespace морской_бой
         int solo = 4;
         Thread thread;
         TcpListener server;
-        bool serverReady;
+        bool server_ready;
         ConnectForm parentF;
         List<string> coords = new List<string>();
+        List<string> coords_enemy = new List<string>();
+
         GameForm gameF;
         string enemyString;
         string abc = "ABCDEFGHIJ";
@@ -51,11 +53,15 @@ namespace морской_бой
                 this.Text = "Хост";
                 server = new TcpListener(IPAddress.Parse("192.168.31.86"), 8080);
                 server.Start();
-               serverReady = false;
+               server_ready = false;
                 ThreadStart threadstart = new ThreadStart(Listener);
                 thread = new Thread(new ThreadStart(Listener));
                 thread.IsBackground = true;
                 thread.Start();
+            }
+            else
+            {
+                this.Text = "Клиент";
             }
             
 
@@ -144,11 +150,20 @@ namespace морской_бой
                 if (parentF.rb_Client.Checked)
                 {
                     TcpClient client = new TcpClient();
-
                     await client.ConnectAsync(IPAddress.Parse(parentF.IP.Text), 8080);
                     NetworkStream stream = client.GetStream();
                     byte[] data = new byte[1024];
-                    await stream.ReadAsync(data, 0, data.Length);
+                     await stream.ReadAsync(data, 0, data.Length);
+                    string data_string= Encoding.UTF8.GetString(data);
+                    foreach(string item in data_string.Split(';'))
+                        coords_enemy.Add(item);
+                    string clientCoords = "";
+                    foreach (string item in coords)
+                    {
+                        clientCoords += item + ";";
+                    }
+                    byte[] bytes = Encoding.UTF8.GetBytes("client;"+clientCoords);
+                    stream.Write(bytes, 0, bytes.Length);
                     client.Close();
 
                     this.Hide();
@@ -159,7 +174,7 @@ namespace морской_бой
 
                 } else
                 {
-                    serverReady = (quadro == 0 && trio == 0 && duo == 0 && solo == 0) ? true : false;
+                    server_ready = (quadro == 0 && trio == 0 && duo == 0 && solo == 0) ? true : false;
                 }
             }
         }
@@ -174,11 +189,27 @@ namespace морской_бой
             }
             while (true)
             {
-                if (serverReady)
+                if (server_ready)
                 {
                     NetworkStream stream = client.GetStream();
-                    byte[] bytes = Encoding.UTF8.GetBytes("serverisready");
+                    string serverCoords = "";
+                    foreach (string item in coords)
+                    {
+                        serverCoords += item+";";
+                    }
+                    byte[] bytes = Encoding.UTF8.GetBytes(serverCoords);
                     stream.Write(bytes, 0, bytes.Length);
+                    string first_element = "";
+                    string client_coords="";
+                    while (first_element!="client")
+                    {
+                        byte[] data = new byte[1024];                 
+                        stream.Read(data, 0, data.Length);
+                        client_coords = Encoding.UTF8.GetString(data);
+                        first_element= client_coords.Split(';')[0];
+                    }
+                    for (int i = 1; i < client_coords.Split(';').Length; i++)
+                        coords_enemy.Add(client_coords.Split(';')[i]);
                     break;
                 }
             }
