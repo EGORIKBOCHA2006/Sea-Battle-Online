@@ -78,6 +78,7 @@ namespace морской_бой
 
         public async Task Wait_enemy(string type_enemy, NetworkStream stream)
         {
+           
             while (true)
             {
                 byte[] data = new byte[2048];
@@ -89,6 +90,7 @@ namespace морской_бой
                 }
 
                 string json_string = Encoding.UTF8.GetString(data, 0, bytesRead).Trim('\0');
+                MessageBox.Show(json_string);
                 shot = JsonConvert.DeserializeObject<Shot>(json_string);
 
                 if (shot.Sender == type_enemy)
@@ -148,12 +150,14 @@ namespace морской_бой
 
                     if (shot.Hit)
                     {
+                        MessageBox.Show("Перекрашен в красный");
                         table_user[shot.Nomber, abc.IndexOf(shot.Litera)].Style.BackColor = Color.Red;
                         coords_my.RemoveAt(coords_my.IndexOf(shot.Litera + shot.Nomber.ToString()));
                         game_state += 2;
                     }
                     else
                     {
+                        MessageBox.Show("Перекрашен в Синий");
                         table_user[shot.Nomber, abc.IndexOf(shot.Litera)].Style.BackColor = Color.Blue;
                         game_state++;
                     }
@@ -168,7 +172,7 @@ namespace морской_бой
             shot = new Shot(
                 table_enemy.Rows[table_enemy.SelectedCells[0].RowIndex].HeaderCell.Value.ToString(),
                 table_enemy.SelectedCells[0].ColumnIndex,
-                "server",
+                (is_host)?"server":"client",
                 coords_enemy.Contains(table_enemy.Rows[table_enemy.SelectedCells[0].RowIndex].HeaderCell.Value.ToString().ToLower() + table_enemy.SelectedCells[0].ColumnIndex.ToString())
             );
             shout = true;
