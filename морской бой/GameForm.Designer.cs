@@ -75,6 +75,7 @@ namespace морской_бой
             this.btnFire.TabIndex = 2;
             this.btnFire.Text = "Огонь!";
             this.btnFire.UseVisualStyleBackColor = true;
+            this.btnFire.Click += new System.EventHandler(this.btnFire_Click);
             // 
             // label1
             // 
@@ -280,7 +281,6 @@ namespace морской_бой
             dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.table_enemy.DefaultCellStyle = dataGridViewCellStyle8;
-            this.table_enemy.Enabled = false;
             this.table_enemy.GridColor = System.Drawing.Color.Yellow;
             this.table_enemy.Location = new System.Drawing.Point(641, 82);
             this.table_enemy.MultiSelect = false;

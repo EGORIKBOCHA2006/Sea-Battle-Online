@@ -146,7 +146,7 @@ namespace морской_бой
 
         private async void btnAccept_Click(object sender, EventArgs e)
         {
-            if (lblCount1.Text == "0" && lblCount2.Text == "0" && lblCount3.Text == "0" && lblCount4.Text == "0")
+            if (lblCount1.Text == "0" /*&& lblCount2.Text == "0" && lblCount3.Text == "0" && lblCount4.Text == "0"*/)
             {
                 for (int i = 0; i < dataGridView1.Rows.Count; i++)
                 {
@@ -187,7 +187,7 @@ namespace морской_бой
 
                 } else
                 {
-                    server_ready = (quadro == 0 && trio == 0 && duo == 0 && solo == 0) ? true : false;
+                    server_ready = (/*quadro == 0 && trio == 0 && duo == 0 &&*/ solo == 0) ? true : false;
                 }
             }
         }
