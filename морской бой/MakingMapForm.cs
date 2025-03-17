@@ -52,7 +52,7 @@ namespace морской_бой
             if (parentF.rb_Server.Checked)
             {
                 this.Text = "Хост";
-                server = new TcpListener(IPAddress.Parse("192.168.31.86"), 8080);
+                server = new TcpListener(IPAddress.Parse(parentF.IP.Text), 8080);
                 server.Start();
                server_ready = false;
                 /*ThreadStart threadstart = new ThreadStart(Listener);
@@ -75,7 +75,7 @@ namespace морской_бой
         {
             await Task.Run(() => Listener());
             this.Hide();
-            gameF = new GameForm(coords, coords_enemy, true, IPAddress.Parse(parentF.IP.Text));
+            gameF = new GameForm(coords, coords_enemy, true, IPAddress.Parse(parentF.IP.Text), enemyString);
             gameF.ShowDialog();
             this.Close();
         }
@@ -179,7 +179,7 @@ namespace морской_бой
                     client.Close();
 
                     this.Hide();
-                    gameF = new GameForm(coords, coords_enemy, false, IPAddress.Parse(parentF.IP.Text));
+                    gameF = new GameForm(coords, coords_enemy, false, IPAddress.Parse(parentF.IP.Text), enemyString);
                     gameF.ShowDialog();
                     this.Close();
 

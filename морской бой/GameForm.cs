@@ -24,10 +24,11 @@ namespace морской_бой
         Shot shot;
         List<string> coords_my;
         List<string> coords_enemy;
+        string ipenemy;
         bool shout = false;
         bool is_host = false;
 
-        public GameForm(List<string> coords_my, List<string> coords_enemy, bool is_host, IPAddress ip_enemy = null)
+        public GameForm(List<string> coords_my, List<string> coords_enemy, bool is_host, IPAddress ip_enemy,string ipenemy)
         {
             InitializeComponent();
             table_user.RowCount = 10;
@@ -36,6 +37,7 @@ namespace морской_бой
             this.coords_my = coords_my;
             this.is_host = is_host;
             this.coords_enemy = coords_enemy;
+            this.ipenemy = ipenemy;
 
             for (int i = 0; i < 10; i++)
             {
@@ -64,16 +66,13 @@ namespace морской_бой
 
         public async Task Start_main_game()
         {
-            await Main_game(is_host);
+            await  Main_game(is_host);
         }
 
-        public async Task end_shot()
+        public async Task End_shot()
         {
-            while (!shout)
-            {
-                await Task.Delay(100); // Асинхронное ожидание
-            }
-            shout = false;
+            await Task.Run(() => { while (true) { if (shout) { shout = false; break; } } });
+            
         }
 
         public async Task Wait_enemy(string type_enemy, NetworkStream stream)
@@ -110,16 +109,17 @@ namespace морской_бой
             if (isHost)
             {
                 game_state = 2;
-                server = new TcpListener(IPAddress.Parse("192.168.31.86"), 8080);
+                server = new TcpListener(IPAddress.Parse(ipenemy), 8080);
                 server.Start();
                 client = await server.AcceptTcpClientAsync();
+                MessageBox.Show("Подключение");
                 stream = client.GetStream();
             }
             else
             {
                 game_state = 3;
                 client = new TcpClient();
-                await client.ConnectAsync(iPAddressEnemy, 8080);
+                await client.ConnectAsync(ipenemy, 8080);
                 stream = client.GetStream();
             }
 
@@ -128,7 +128,7 @@ namespace морской_бой
                 if (game_state % 2 == 0)
                 {
                     btnFire.Enabled = true;
-                    await end_shot();
+                    await End_shot();
                     btnFire.Enabled = false;
 
                     string json_Shot = JsonConvert.SerializeObject(shot);

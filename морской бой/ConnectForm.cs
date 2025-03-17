@@ -83,7 +83,7 @@ namespace морской_бой
                 }
                 else
                 {
-                    TcpListener server = new TcpListener(IPAddress.Parse("192.168.31.86"), 8080);
+                    TcpListener server = new TcpListener(IPAddress.Parse(IPEnemy), 8080);
                     try
                     {
                         server.Start();
