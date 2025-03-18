@@ -72,6 +72,9 @@
     <EmbeddedResource Include="ConnectForm.resx">
       <DependentUpon>ConnectForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GameForm.resx">
+      <DependentUpon>GameForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MakingMapForm.resx">
       <DependentUpon>MakingMapForm.cs</DependentUpon>
     </EmbeddedResource>

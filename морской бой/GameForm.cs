@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,196 +17,191 @@ using System.Windows.Forms;
 
 namespace морской_бой
 {
-    
     public partial class GameForm : Form
     {
-        List<string> coords;
-        DataGridView myTable;
-        int countMyShips = 20;
-        int countEnemyShips = 20;
-        bool isHost;
-        TcpClient client;
-        TcpListener server;
-        bool fired = false;
-        string enemyString;
-        public GameForm(DataGridView parentDGV, bool isHost, string enemyString)
+        string abc = "abcdefghij";
+        IPAddress iPAddressEnemy;
+        Shot shot;
+        List<string> coords_my;
+        List<string> coords_enemy;
+        string ipenemy;
+        bool shout = false;
+        bool is_host = false;
+
+        public GameForm(List<string> coords_my, List<string> coords_enemy, bool is_host, IPAddress ip_enemy,string ipenemy)
         {
             InitializeComponent();
-            this.enemyString = enemyString;
-            myTable = CopyDataGridView(parentDGV);
-            this.isHost = isHost;
-            this.myTable.AllowUserToAddRows = false;
-            this.myTable.AllowUserToDeleteRows = false;
-            this.myTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.myTable.Location = new System.Drawing.Point(12, 113);
-            this.myTable.Name = "myTable";
-            this.myTable.ReadOnly = true;
-            this.myTable.Size = new System.Drawing.Size(581, 420);
-            this.myTable.TabIndex = 1;
-            this.Controls.Add(myTable);
+            table_user.RowCount = 10;
+            table_enemy.RowCount = 10;
+            iPAddressEnemy = ip_enemy;
+            this.coords_my = coords_my;
+            this.is_host = is_host;
+            this.coords_enemy = coords_enemy;
+            this.ipenemy = ipenemy;
 
-            enemyTable.AllowUserToResizeRows = false;
-            enemyTable.RowCount = 10;
-            string abc = "ABCDEFGHIJ";
             for (int i = 0; i < 10; i++)
             {
-                //MessageBox.Show(abc[i].ToString());
-                enemyTable.Rows[i].HeaderCell.Value = abc[i].ToString();
+                table_user.Rows[i].Height = 40;
+                table_enemy.Rows[i].Height = 40;
             }
 
-            myTable.Show();
-            MessageBox.Show(isHost.ToString());
-            this.Show();
+            for (int i = 0; i < 10; i++)
+            {
+                table_user.Rows[i].HeaderCell.Value = abc[i].ToString();
+                table_enemy.Rows[i].HeaderCell.Value = abc[i].ToString();
+            }
+
+            foreach (string str in coords_my)
+            {
+                table_user[(int)char.GetNumericValue(str[1]), abc.IndexOf(str[0])].Style.BackColor = Color.BlueViolet;
+            }
+
+            Start_main_game();
         }
 
-        private DataGridView CopyDataGridView(DataGridView dgv_org)
+        public bool End_of_game()
         {
-            DataGridView dgv_copy = new DataGridView();
-            try
-            {
-                if (dgv_copy.Columns.Count == 0)
-                {
-                    foreach (DataGridViewColumn dgvc in dgv_org.Columns)
-                    {
-                        dgv_copy.Columns.Add(dgvc.Clone() as DataGridViewColumn);
-                    }
-                }
-                DataGridViewRow row = new DataGridViewRow();
-                for (int i = 0; i < dgv_org.Rows.Count; i++)
-                {
-                    row = (DataGridViewRow)dgv_org.Rows[i].Clone();
-                    int intColIndex = 0;
-                    foreach (DataGridViewCell cell in dgv_org.Rows[i].Cells)
-                    {
-                        row.Cells[intColIndex].Value = cell.Value;
-                        intColIndex++;
-                    }
-                    dgv_copy.Rows.Add(row);
-                }
-                dgv_copy.AllowUserToAddRows = false;
-                dgv_copy.Refresh();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Copy DataGridViw", ex.Message);
-            }
-            return dgv_copy;
+            return coords_my.Count == 0 || coords_enemy.Count == 0;
         }
 
-
-        public async void MainGame()
+        public async Task Start_main_game()
         {
-            MessageBox.Show("мейн гейм");
-            int stage = -1;
+            await  Main_game(is_host);
+        }
+
+        public async Task End_shot()
+        {
+            await Task.Run(() => { while (true) { if (shout) { shout = false; break; } } });
+            
+        }
+
+        public async Task Wait_enemy(string type_enemy, NetworkStream stream)
+        {
+           
+            while (true)
+            {
+                byte[] data = new byte[2048];
+                int bytesRead = await stream.ReadAsync(data, 0, data.Length);
+                if (bytesRead == 0)
+                {
+                    MessageBox.Show("Соединение с противником разорвано.");
+                    break;
+                }
+
+                string json_string = Encoding.UTF8.GetString(data, 0, bytesRead).Trim('\0');
+                MessageBox.Show(json_string);
+                shot = JsonConvert.DeserializeObject<Shot>(json_string);
+
+                if (shot.Sender == type_enemy)
+                {
+                    break;
+                }
+            }
+        }
+
+        public async Task Main_game(bool isHost)
+        {
+            int game_state;
+            TcpListener server;
+            TcpClient client;
+            NetworkStream stream;
+
             if (isHost)
             {
-                stage = 0;
+                game_state = 2;
+                server = new TcpListener(IPAddress.Parse(ipenemy), 8080);
+                server.Start();
+                client = await server.AcceptTcpClientAsync();
+                MessageBox.Show("Подключение");
+                stream = client.GetStream();
             }
             else
             {
-                stage = 1;
+                game_state = 3;
+                client = new TcpClient();
+                await client.ConnectAsync(ipenemy, 8080);
+                stream = client.GetStream();
             }
 
-            while (countEnemyShips>0 && countMyShips>0)
+            do
             {
-                MessageBox.Show("Цикл");
-                if (stage % 2 == 0)
+                if (game_state % 2 == 0)
                 {
-                    Application.DoEvents();
                     btnFire.Enabled = true;
-                    while (!fired)
+                    await End_shot();
+                    btnFire.Enabled = false;
+
+                    string json_Shot = JsonConvert.SerializeObject(shot);
+                    byte[] data = Encoding.UTF8.GetBytes(json_Shot);
+                    await stream.WriteAsync(data, 0, data.Length);
+
+                    if (shot.Hit)
                     {
-                        Application.DoEvents();
+                        game_state += 2;
                     }
-                    stage++;
+                    else
+                    {
+                        game_state++;
+                    }
                 }
                 else
                 {
-                    btnFire.Enabled = false;
-                    server = new TcpListener(IPAddress.Parse("192.168.0.134"), 8080);
-                    server.Start();
-                    Thread thread = new Thread(new ThreadStart(Update));
-                    thread.IsBackground = true;
-                    thread.Start();
-                    thread.Join();
-                    server.Stop();
-                    stage++;
+                    await Wait_enemy(isHost ? "client" : "server", stream);
 
+                    if (shot.Hit)
+                    {
+                        MessageBox.Show("Перекрашен в красный");
+                        table_user[shot.Nomber, abc.IndexOf(shot.Litera)].Style.BackColor = Color.Red;
+                        coords_my.RemoveAt(coords_my.IndexOf(shot.Litera + shot.Nomber.ToString()));
+                        game_state += 2;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Перекрашен в Синий");
+                        table_user[shot.Nomber, abc.IndexOf(shot.Litera)].Style.BackColor = Color.Blue;
+                        game_state++;
+                    }
                 }
-                fired = false;
-            }
-           
-            
+            } while (!End_of_game());
 
-
-
-
-
-
-
-
-
+            MessageBox.Show("End");
         }
 
-        private void btn_Fire_Click(object sender, EventArgs e)
+        private async void btnFire_Click(object sender, EventArgs e)
         {
+            shot = new Shot(
+                table_enemy.Rows[table_enemy.SelectedCells[0].RowIndex].HeaderCell.Value.ToString(),
+                table_enemy.SelectedCells[0].ColumnIndex,
+                (is_host)?"server":"client",
+                coords_enemy.Contains(table_enemy.Rows[table_enemy.SelectedCells[0].RowIndex].HeaderCell.Value.ToString().ToLower() + table_enemy.SelectedCells[0].ColumnIndex.ToString())
+            );
+            shout = true;
 
-            try
+            if (shot.Hit)
             {
-
-                client = new TcpClient();
-                client.Connect(IPAddress.Parse(enemyString), 8080);
-                NetworkStream stream = client.GetStream();
-                Shot shot = new Shot {x= enemyTable.SelectedCells[0].ColumnIndex + 1,
-                y= enemyTable.Rows[enemyTable.SelectedCells[0].RowIndex].HeaderCell.Value.ToString(), flagHit=false, hit=false};
-                string send=JsonConvert.SerializeObject(shot);
-                //string send = "{\"x\":" + enemyTable.SelectedCells[0].ColumnIndex + 1 + ",\"y\":" + enemyTable.Rows[enemyTable.SelectedCells[0].RowIndex].HeaderCell.Value + ",\"hit\":" + false.ToString() + ",\"flagHit\":" + false.ToString() + "}";
-                MessageBox.Show(send);
-                byte[] message = Encoding.Unicode.GetBytes(send);
-                stream.Write(message, 0, message.Length);
-                client.Close();
-
+                table_enemy.SelectedCells[0].Style.BackColor = Color.Red;
+                coords_enemy.RemoveAt(coords_enemy.IndexOf(shot.Litera + shot.Nomber.ToString()));
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                table_enemy.SelectedCells[0].Style.BackColor = Color.Blue;
             }
-            fired = true;
-
         }
-        new public async void Update()
+
+        public class Shot
         {
-            while (true)
+            public string Litera;
+            public int Nomber;
+            public string Sender;
+            public bool Hit;
+
+            public Shot(string litera, int nomber, string sender, bool hit)
             {
-                TcpClient cl = server.AcceptTcpClient();    //192.168.88.181
-                StreamReader sr = new StreamReader(cl.GetStream(), Encoding.Unicode);
-                string message = await sr.ReadLineAsync();
-                MessageBox.Show(message);
-                try
-                {
-                    Shot shot = JsonConvert.DeserializeObject<Shot>(message);
-                    MessageBox.Show($"{shot.x} , {shot.y} , {shot.hit} , {shot.flagHit}");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                finally
-                {
-                    server.Stop();
-                }
-                return;
+                this.Litera = litera;
+                this.Nomber = nomber;
+                this.Sender = sender;
+                this.Hit = hit;
             }
         }
-
-
-    }
-
-    class Shot
-    {
-        public int x { get; set; }
-        public string y { get; set; }
-        public bool hit { get; set; }
-        public bool flagHit { get; set; }
     }
 }
