@@ -18,9 +18,7 @@ namespace морской_бой
 {
     public partial class ConnectForm : Form
     {
-
-        string IPEnemy;
-        
+        string IPEnemy;      
         MakingMapForm makingMapF;
         public ConnectForm()
         {
@@ -28,35 +26,6 @@ namespace морской_бой
             InitializeComponent();
 
         }
-
-        /*private async void btn_Enter_Click(object sender, EventArgs e)
-        {
-           
-            try
-            {
-                if (rb_Client.Checked)
-                {
-                    TcpClient client = new TcpClient();
-                    client.Connect(IPAddress.Parse(IPEnemy), 8080);
-                    NetworkStream stream = client.GetStream();
-                    StreamReader sr = new StreamReader(stream);
-                    string message=await sr.ReadLineAsync();
-                    MessageBox.Show(message);
-                    client.Close();
-                }
-                else
-                {
-                    TcpListener server = new TcpListener(IPAddress.Parse("192.168.31.86"),8080);
-                    server.Start();
-                    await ListenerAsync();
-                    MessageBox.Show("Server sent answer");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }*/
         private async void btn_Enter_Click1(object sender, EventArgs e)
         {
             IPEnemy = IP.Text;
@@ -96,9 +65,7 @@ namespace морской_бой
                     finally
                     {
                         server.Stop();
-                    }
-        
-                    
+                    }        
                 }
            
             }
@@ -116,16 +83,7 @@ namespace морской_бой
             catch(Exception ex)
             {
                 MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            
-          
-        }
-        public async Task ListenerAsync()
-        {
-
-
-               //192.168.88.181
-            return;
+            }          
         }
 
         private void rb_Client_CheckedChanged(object sender, EventArgs e)

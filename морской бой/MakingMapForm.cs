@@ -46,7 +46,6 @@ namespace морской_бой
             dataGridView1.RowCount = 10;
             for (int i = 0; i < 10; i++)
             {
-                //MessageBox.Show(abc[i].ToString());
                 dataGridView1.Rows[i].HeaderCell.Value = abc[i].ToString();
             }
             if (parentF.rb_Server.Checked)
@@ -54,13 +53,9 @@ namespace морской_бой
                 this.Text = "Хост";
                 server = new TcpListener(IPAddress.Parse(parentF.IP.Text), 8080);
                 server.Start();
-               server_ready = false;
-                /*ThreadStart threadstart = new ThreadStart(Listener);
-                thread = new Thread(new ThreadStart(Listener));
-                thread.IsBackground = true;
-                thread.Start();*/
+                server_ready = false;
                 startListener();
-                
+
 
             }
             else
@@ -146,7 +141,7 @@ namespace морской_бой
 
         private async void btnAccept_Click(object sender, EventArgs e)
         {
-            if (lblCount1.Text == "0" /*&& lblCount2.Text == "0" && lblCount3.Text == "0" && lblCount4.Text == "0"*/)
+            if (lblCount1.Text == "0" && lblCount2.Text == "0" && lblCount3.Text == "0" && lblCount4.Text == "0")
             {
                 for (int i = 0; i < dataGridView1.Rows.Count; i++)
                 {
@@ -187,7 +182,7 @@ namespace морской_бой
 
                 } else
                 {
-                    server_ready = (/*quadro == 0 && trio == 0 && duo == 0 &&*/ solo == 0) ? true : false;
+                    server_ready = (quadro == 0 && trio == 0 && duo == 0 && solo == 0) ? true : false;
                 }
             }
         }
